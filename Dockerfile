@@ -3,7 +3,7 @@
 # Requires Docker v17.05
 
 # Use OpenJDK JDK image for intermiediate build
-FROM openjdk:21-slim AS build
+FROM eclipse-temurin:21-jdk-jammy AS build
 
 # Build from source and create artifact
 WORKDIR /src
@@ -17,10 +17,11 @@ RUN apt-get clean \
     && apt-get update \
     && apt install git -y
 RUN git submodule update --init
+RUN +x gradlew
 RUN ./gradlew shadowJar
 
 # Use OpenJDK JRE image for runtime
-FROM openjdk:21-slim AS run
+FROM eclipse-temurin:21-jdk-jammy AS run
 
 # Copy artifact from build image
 COPY --from=build /src/build/powernukkitx-2.0.0-SNAPSHOT-all.jar /app/powernukkitx.jar
