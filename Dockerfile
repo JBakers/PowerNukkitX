@@ -17,7 +17,7 @@ RUN apt-get clean \
     && apt-get update \
     && apt install git -y
 RUN git submodule update --init
-RUN +x gradlew
+RUN chmod +x gradlew
 RUN ./gradlew shadowJar
 
 # Use OpenJDK JRE image for runtime
