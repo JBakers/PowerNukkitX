@@ -66,7 +66,7 @@ jobs:
       - name: Test Docker image - Check JAR exists
         run: |
           echo "Checking if powernukkitx.jar exists in the image..."
-          docker run --rm powernukkitx:test-${{ github.sha }} ls -lh /app/powernukkitx.jar
+          docker run --rm --entrypoint ls powernukkitx:test-${{ github.sha }} -lh /app/powernukkitx.jar
           
       - name: Test Docker image - Verify Java version
         run: |
