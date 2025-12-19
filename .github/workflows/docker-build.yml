@@ -84,13 +84,26 @@ jobs:
           docker run --rm --entrypoint pwd powernukkitx:test-${{ github.sha }}
       
       # Output a summary of the build results to the GitHub Actions UI
-      - name: Output build summary
-        if: always()
+      - name: Output build summary - Success
+        if: success()
         run: |
           {
             echo "## Docker Build Summary"
             echo ""
-            echo "**Build Status:** ${{ job.status }}"
+            echo "**Build Status:** ✅ Success"
             echo "**Image Tag:** powernukkitx:test-${{ github.sha }}"
             echo "**Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      
+      - name: Output build summary - Failure
+        if: failure()
+        run: |
+          {
+            echo "## Docker Build Summary"
+            echo ""
+            echo "**Build Status:** ❌ Failed"
+            echo "**Image Tag:** powernukkitx:test-${{ github.sha }}"
+            echo "**Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo ""
+            echo "Please check the workflow logs above for detailed error messages."
           } >> "$GITHUB_STEP_SUMMARY"
