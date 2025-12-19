@@ -1,0 +1,38 @@
+# GitHub Copilot Agent Setup Configuration
+# This file configures setup actions that run before the firewall is enabled,
+# allowing access to required external repositories during the build process.
+
+# External Maven repositories required by PowerNukkitX
+# These domains must be accessible during dependency resolution
+allowed_domains:
+  # JitPack - Used for GitHub-based dependencies
+  - jitpack.io
+  
+  # OpenCollab - Used for Minecraft Bedrock protocol libraries
+  - repo.opencollab.dev
+  
+  # PowerNukkitX Repository - Custom repository for PNX-specific artifacts
+  - repo.powernukkitx.org
+  
+  # Maven Central - Standard Java dependency repository
+  - repo.maven.apache.org
+  - repo1.maven.org
+  
+  # Gradle Plugin Portal - For Gradle plugins
+  - plugins.gradle.org
+
+# Additional setup steps that should run before firewall activation
+pre_firewall_steps:
+  - name: Initialize Git Submodules
+    description: "Initialize git submodules required for Terra generator"
+    command: git submodule update --init --recursive
+  
+  - name: Download Dependencies
+    description: "Pre-download all dependencies to Gradle cache"
+    command: ./gradlew dependencies --no-daemon --refresh-dependencies
+
+# Notes for Copilot agents:
+# 1. This configuration ensures all required external repositories are accessible
+# 2. If build fails with connection errors, verify these domains are allowlisted
+# 3. The pre-firewall steps cache dependencies before the build environment is locked down
+# 4. For Docker builds, the same domains must be accessible during the build stage
