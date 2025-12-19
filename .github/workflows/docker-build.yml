@@ -1,6 +1,13 @@
 name: Docker Build Test
 
-# Trigger on pull requests affecting Docker/build files, pushes to master, or manual dispatch
+# This workflow validates that the Docker image builds successfully
+# It tests the multi-stage Dockerfile which requires access to external Maven repositories:
+# - jitpack.io, repo.opencollab.dev, repo.powernukkitx.org, Maven Central
+#
+# Triggers:
+# - Pull requests modifying Docker/build configuration files
+# - Pushes to master branch modifying Docker files
+# - Manual workflow dispatch for testing
 on:
   pull_request:
     paths:
@@ -21,30 +28,36 @@ jobs:
   docker-build:
     name: Build and Test Docker Image
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 30  # Allow sufficient time for first build with dependency downloads
     permissions:
-      contents: read
+      contents: read  # Required to checkout the repository
     
     steps:
+      # Checkout the repository with submodules (required for Terra generator)
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: true
-          
+      
+      # Set up Docker Buildx for advanced build features and caching
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
+      
+      # Build the Docker image with GitHub Actions cache for layer reuse
+      # This significantly speeds up subsequent builds
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
-          push: false
-          load: true
+          push: false  # Don't push, just build and test
+          load: true   # Load image into Docker for testing
           tags: powernukkitx:test-${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          
+          cache-from: type=gha  # Read from GitHub Actions cache
+          cache-to: type=gha,mode=max  # Write all layers to cache
+      
+      # Smoke Tests: Verify the image is functional
+      
       - name: Verify Docker image
         run: |
           echo "Verifying the Docker image was built successfully..."
@@ -69,7 +82,8 @@ jobs:
         run: |
           echo "Checking working directory is /data..."
           docker run --rm --entrypoint pwd powernukkitx:test-${{ github.sha }}
-          
+      
+      # Output a summary of the build results to the GitHub Actions UI
       - name: Output build summary
         if: always()
         run: |
