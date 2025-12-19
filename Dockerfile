@@ -93,7 +93,7 @@ ENTRYPOINT ["java"]
 # - Jansi/ANSI terminal settings for console output
 # - ZGC garbage collector with generational mode for better performance
 # - String deduplication to reduce memory usage
-# - --add-opens flags required for reflection access (as per README)
+# - --add-opens flags required for reflection access (required by PNX)
 # - Classpath includes the JAR and any external libs in ./libs/
 CMD [ "-Dfile.encoding=UTF-8", \
       "-Djansi.passthrough=true", \
@@ -103,5 +103,6 @@ CMD [ "-Dfile.encoding=UTF-8", \
       "-XX:+UseStringDeduplication", \
       "--add-opens", "java.base/java.lang=ALL-UNNAMED", \
       "--add-opens", "java.base/java.io=ALL-UNNAMED", \
+      "--add-opens", "java.base/java.net=ALL-UNNAMED", \
       "-cp", "/app/powernukkitx.jar:./libs/*", \
       "cn.nukkit.Nukkit" ]
